@@ -12,8 +12,8 @@ createDB "test.db" "test"
 --main = do
 --	-- checkDBConsistency
 --	x <- checkDBConsistency'
---	case x of 
---		(Right _) -> do 
+--	case x of
+--		(Right _) -> do
 --			let results = fromTest [||$$differencesT||]
 --			print results
 --		(Left err) -> do error err
@@ -21,23 +21,23 @@ createDB "test.db" "test"
 
 range'' lb ub = [|do
 	person <- people
-	guard $ lb <= (age person) && (age person) < ub  
+	guard $ lb <= (age person) && (age person) < ub
 	return $ (name person)|]
 
 range' lb ub = fromTestUntyped [|do
 	person <- people
-	guard $ lb <= (age person) && (age person) < ub  
+	guard $ lb <= (age person) && (age person) < ub
 	return $ (name person)|]
 
 range = [|\lb ub -> do
 	person <- people
-	guard $ lb <= (age person) && (age person) < ub  
+	guard $ lb <= (age person) && (age person) < ub
 	return $ (name person)|]
 
 rangeT :: Q (TExp (Int -> Int -> [String]))
 rangeT = [||\lb ub -> do
 	person <- people test
-	guard $ lb <= (age person) && (age person) < ub  
+	guard $ lb <= (age person) && (age person) < ub
 	return $ (name person)||]
 
 range1 = [|\lb ub -> do
@@ -46,13 +46,13 @@ range1 = [|\lb ub -> do
 
 getAge = [|\name' -> do
 	person <- people
-	guard $ (name person) == name' 
+	guard $ (name person) == name'
 	return $ (age person)|]
 
 getAgeT :: Q (TExp (String -> [Int]))
 getAgeT = [||\name' -> do
 	person <- people test
-	guard $ (name person) == name' 
+	guard $ (name person) == name'
 	return $ (age person)||]
 
 
@@ -64,12 +64,12 @@ getAge1 = [|\name' -> do
 
 getAge' name' = fromTestUntyped [|do
 	person <- people
-	guard $ (name person) == name' 
+	guard $ (name person) == name'
 	return $ (age person)|]
 
 getAge'' = [|\name' -> do
 	person <- people
-	guard $ (name person) == name' 
+	guard $ (name person) == name'
 	return $ (age person)|]
 
 compose = [|\name1 name2 -> do
@@ -99,7 +99,7 @@ differencesT = [||do
 
 satisfies = [|\p -> do person <- people; guard $ (p (age person)); return $ (name person)|]
 
-satisfiesT = [||\p -> do 
+satisfiesT = [||\p -> do
 	person <- people test
 	guard $ (p (age person))
 	return $ (name person)||]

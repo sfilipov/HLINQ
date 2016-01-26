@@ -31,7 +31,7 @@ toRecTests = [testCase "toRec " (toRec Rec1 [[toSql "Hello"]] @?= [Rec1 "Hello"]
 			  testCase "toRec3" (toRec3 Rec3 [[toSql "Hello", toSql "World", (toSql (42::Int))]] @?= [Rec3 "Hello" "World" 42]),
 			  testCase "toRec4" (toRec4 Rec4 [[toSql "Hello", toSql "World", (toSql (42::Int)), toSql ""]] @?= [Rec4 "Hello" "World" 42 ""]),
 			  testCase "toRec5" (toRec5 Rec5 [[toSql "Hello", toSql "World", (toSql (42::Int)), toSql "", toSql '!']] @?= [Rec5 "Hello" "World" 42 "" '!'])
-			  ] 
+			  ]
 
 toListTests = [testCase "toList" (do
 	vals <- toList $ return [[toSql "Hello"]]

@@ -19,10 +19,10 @@ data ValueExpr = StringLit String
 	| Union ValueExpr ValueExpr deriving(Eq)
 instance Show ValueExpr where
 	show (Iden s) = s
-	show (DIden s1 s2)  = s2 ++ "." ++ s1	
+	show (DIden s1 s2)  = s2 ++ "." ++ s1
 	show (Star) 	    =  "*"
 	show (DStar s) = s ++ ".*"
-	show (BinOp exp1 op exp2) = show exp1 ++ " " ++ op ++ " " ++ show exp2  
+	show (BinOp exp1 op exp2) = show exp1 ++ " " ++ op ++ " " ++ show exp2
 	show (Parens exp) = "(" ++ show exp ++ ")"
 	show (NumLit val) = show val
 	show (StringLit val) = val
@@ -35,7 +35,7 @@ getQueryParameters queryExp = case (qeWhere queryExp) of
 									Nothing -> []
 
 getValsWhere :: ValueExpr -> [ValueExpr]
-getValsWhere (BinOp exp1 string exp2) 
+getValsWhere (BinOp exp1 string exp2)
   | string `elem` hsBinOpStr = case exp2 of
   									(NumLit val) -> (getValsWhere exp1) ++ [exp2]
   									(StringLit val) -> (getValsWhere exp1) ++ [exp2]
@@ -48,16 +48,16 @@ getValsWhere (NotExists query) = q where
   	q = case (qeWhere query) of
  			   Just exp -> (getValsWhere exp)
  			   otherwise -> []
-getValsWhere exp = error $ "getValsWhere: " ++ show exp 
+getValsWhere exp = error $ "getValsWhere: " ++ show exp
 
 knockOutValsWhere :: ValueExpr -> ValueExpr
-knockOutValsWhere (BinOp exp1 string exp2) 
+knockOutValsWhere (BinOp exp1 string exp2)
   | string `elem` hsBinOpStr = case exp2 of
   									(NumLit val) -> (BinOp (knockOutValsWhere exp1) string (StringLit "(?)"))
   									(StringLit val) -> (BinOp (knockOutValsWhere exp1) string (StringLit "(?)"))
   									otherwise -> (BinOp (knockOutValsWhere exp1) string exp2)
   | otherwise = BinOp (knockOutValsWhere exp1) string (knockOutValsWhere exp2)
-knockOutValsWhere exp@(DIden _ _) = exp 
+knockOutValsWhere exp@(DIden _ _) = exp
 knockOutValsWhere exp@(NumLit val) = StringLit "(?)"
 knockOutValsWhere exp@(StringLit val) = StringLit "(?)"
 knockOutValsWhere (NotExists query) = NotExists q where
@@ -68,9 +68,9 @@ knockOutValsWhere (NotExists query) = NotExists q where
 hsBinOpStr :: [String]
 hsBinOpStr = ["=", "<", ">", "<=", ">=", "/="]
 
-data SqlQuery = UnionAll [QueryExpr] deriving (Eq) 
+data SqlQuery = UnionAll [QueryExpr] deriving (Eq)
 instance Show SqlQuery where
-	show (UnionAll a) = foldr (\x str -> str ++ " UNION ALL" ++ show x) "" a 
+	show (UnionAll a) = foldr (\x str -> str ++ " UNION ALL" ++ show x) "" a
 
 data QueryExpr = Select
 	{qeSelectList :: [(ValueExpr,Maybe String)]
@@ -81,11 +81,11 @@ data QueryExpr = Select
 	,qeOrderBy :: [ValueExpr]
 	} deriving (Eq)
 instance Show QueryExpr where
-	show (Select {qeSelectList=selectS, qeFrom=fromS, qeWhere=(Just whereS)}) = showSelect ++ showFrom ++ showWhere where 
+	show (Select {qeSelectList=selectS, qeFrom=fromS, qeWhere=(Just whereS)}) = showSelect ++ showFrom ++ showWhere where
 		showSelect = "SELECT " ++ showAnyList (map (\(x, _) -> x) selectS)  ++ "\n"
 		showFrom = "FROM " ++ showAnyList fromS  ++ "\n"
 		showWhere = "WHERE " ++ (show $ knockOutValsWhere whereS)
-	show (Select {qeSelectList=selectS, qeFrom=fromS, qeWhere=(Nothing)}) = showSelect ++ showFrom where 
+	show (Select {qeSelectList=selectS, qeFrom=fromS, qeWhere=(Nothing)}) = showSelect ++ showFrom where
 		showSelect = "SELECT " ++ showAnyList (map (\(x, _) -> x) selectS)  ++ "\n"
 		showFrom = "FROM " ++ showAnyList fromS  ++ "\n"
 
@@ -105,7 +105,7 @@ data TableRef = TRSimple String
 	deriving (Eq)
 instance Show TableRef where
 	show (TRSimple s) = s
-	show (TRAlias ref s)  = show ref ++ " AS " ++ s 
+	show (TRAlias ref s)  = show ref ++ " AS " ++ s
 
 data JoinType = JoinInner | JoinLeft | JoinRight | JoinFull | JoinCross
 	deriving (Eq,Show)
@@ -119,6 +119,6 @@ data JoinCondition = JoinOn ValueExpr
 
 showAnyList ::(Show a) => [a] -> String
 showAnyList [] = ""
-showAnyList [x] = show x 
+showAnyList [x] = show x
 showAnyList (x:xs) = show x ++ ", " ++ (showAnyList xs)
 

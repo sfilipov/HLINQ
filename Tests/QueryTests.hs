@@ -41,7 +41,7 @@ rangeTest = [testCase "Range 30 40" (do
 rangeT :: Q (TExp (Int -> Int -> [String]))
 rangeT = [||\lb ub -> do
 	person <- people db
-	guard $ lb <= (age person) && (age person) < ub  
+	guard $ lb <= (age person) && (age person) < ub
 	return $ (name person)||]
 
 range a b = do
@@ -50,7 +50,7 @@ range a b = do
 	disconnect conn
 	return res
 
- 
+
 ageTest = [testCase "GetAge Drew" (do
 	res <- (fromDb [||$$getAgeT "Edna"||])
 	resSQL <- getAge "Edna"
@@ -60,7 +60,7 @@ ageTest = [testCase "GetAge Drew" (do
 getAgeT :: Q (TExp (String -> [Int]))
 getAgeT = [||\name' -> do
 	person <- people db
-	guard $ (name person) == name' 
+	guard $ (name person) == name'
 	return $ (age person)||]
 
 getAge name = do
@@ -94,7 +94,7 @@ preT :: Q(TExp (Int->Bool))
 preT = [||(\x -> 30 < x && x <= 40)||]
 
 
-satisfiesT = [||\p -> do 
+satisfiesT = [||\p -> do
 	person <- people db
 	guard $ (p (age person))
 	return $ (name person)||]

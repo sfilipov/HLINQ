@@ -5,7 +5,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Syntax
 import Database.HDBC.Sqlite3 (connectSqlite3)
 import Database.HDBC
-import Control.Monad	
+import Control.Monad
 import Data.List (intercalate)
 import Data.Maybe
 import Data.Int
@@ -30,7 +30,7 @@ getColumnType :: (String, SqlColDesc) -> (String, SqlTypeId)
 getColumnType  (name, info) = (name, (colType info))
 
 getColumnTypes :: [(String, SqlColDesc)] -> [(String, SqlTypeId)]
-getColumnTypes columns = map getColumnType columns 
+getColumnTypes columns = map getColumnType columns
 
 getDatabaseTypes :: [[(String, SqlColDesc)]] -> [[(String,SqlTypeId)]]
 getDatabaseTypes database = map getColumnTypes database
@@ -99,7 +99,7 @@ createTableRecord (tableName, columnTypes) = DataD context name vars cons derive
 
 
 createFields :: [a] -> (a -> VarStrictType) -> [VarStrictType]
-createFields xs mkField = map mkField xs 
+createFields xs mkField = map mkField xs
 
 createDBInfoRecord :: Q Dec
 createDBInfoRecord = return $ DataD context name vars cons derives where
@@ -142,7 +142,7 @@ createColumnInfos :: [(String, SqlTypeId)] -> [(String, String)]
 createColumnInfos xs = map createColumnInfo xs
 
 createColumnInfo :: (String, SqlTypeId) -> (String, String)
-createColumnInfo (name, typ) = (name, convTypeString typ) 
+createColumnInfo (name, typ) = (name, convTypeString typ)
 
 convType :: SqlTypeId -> Name
 convType typ = case typ of
@@ -171,7 +171,7 @@ defFromDBUntyped dbName  dbPath = return $ FunD (mkName $ "from" ++ (toTitleCase
 	-- Executes the prepared statement "stat" on the db.
 	execS = NoBindS (AppE (AppE (VarE 'execute) (VarE $ mkName "stat")) (VarE $ mkName "getVals"))
 	-- Fetches results from db and binds them to "results", necessary so that the connection does not disconnect until the results are pulled.
-	bindResS = BindS (VarP $ mkName "results") (AppE (VarE 'fetchAllRows') (VarE $ mkName "stat")) 
+	bindResS = BindS (VarP $ mkName "results") (AppE (VarE 'fetchAllRows') (VarE $ mkName "stat"))
 	-- Disconnects from the database
 	discS = NoBindS (AppE (VarE 'disconnect) (VarE $ mkName "conn"))
 	-- Necessary so that the connection does not disconnect until the results are pulled.
@@ -191,7 +191,7 @@ defFromDB dbName  dbPath = return $ FunD (mkName $ "from" ++ (toTitleCase dbName
 	-- Executes the prepared statement "stat" on the db.
 	execS = NoBindS (AppE (AppE (VarE 'execute) (VarE $ mkName "stat")) (VarE $ mkName "getVals"))
 	-- Fetches results from db and binds them to "results", necessary so that the connection does not disconnect until the results are pulled.
-	bindResS = BindS (VarP $ mkName "results") (AppE (VarE 'fetchAllRows') (VarE $ mkName "stat")) 
+	bindResS = BindS (VarP $ mkName "results") (AppE (VarE 'fetchAllRows') (VarE $ mkName "stat"))
 	-- Disconnects from the database
 	discS = NoBindS (AppE (VarE 'disconnect) (VarE $ mkName "conn"))
 	-- Necessary so that the connection does not disconnect until the results are pulled.

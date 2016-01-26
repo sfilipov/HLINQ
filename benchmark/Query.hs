@@ -22,11 +22,11 @@ withDB = sqliteConnect "test.db"
 simpleSelection = do
 	table T.couples
 
-peopleSelection = do 
+peopleSelection = do
 	table T.people
 
 getCouples = withDB $ \db -> query db simpleSelection
-getPeople = withDB $ \db -> query db peopleSelection 
+getPeople = withDB $ \db -> query db peopleSelection
 
 projectName = withDB $ \db -> query db simpleProjection
 projectNameAge = withDB $ \db -> query db simpleProjection2
@@ -45,9 +45,9 @@ restrictEdna = withDB $ \db -> query db simpleRestriction
 simpleRestriction = do
   people <- table T.people
   restrict $ people!F.name .==. constant "Edna or 1=1"
-  return people          
+  return people
 
-range lb ub = withDB $ (\db -> query db (rangeInner lb ub))  
+range lb ub = withDB $ (\db -> query db (rangeInner lb ub))
 
 rangeInner lb ub = do
   people <- table T.people
@@ -56,7 +56,7 @@ rangeInner lb ub = do
 
 differences = withDB $ \db -> query db differencesInner
 
-differencesInner = do 
+differencesInner = do
 	c <- table T.couples
 	m <- table T.people
 	w <- table T.people
@@ -64,14 +64,14 @@ differencesInner = do
 	project $ F.name << w!F.name
 			# F.age << (w!F.age .-. m!F.age)
 
-getAge name = withDB $ (\db -> query db (getAgeInner name)) 
+getAge name = withDB $ (\db -> query db (getAgeInner name))
 
 getAgeInner name = do
 	p <- table T.people
 	restrict $ p!F.name .==. constant name
 	project $ F.age << p!F.age
 
-compose' name1 name2 = withDB $ (\db -> query db (composeInner' name1 name2))  
+compose' name1 name2 = withDB $ (\db -> query db (composeInner' name1 name2))
 
 composeInner' name1 name2 = do
 	p <- table T.people
@@ -82,7 +82,7 @@ composeInner' name1 name2 = do
 	restrict $ people!F.age .>=. p!F.age .&&. people!F.age .<. p2!F.age
 	project $ F.name << people!F.name
 
-compose name1 name2 = withDB $ (\db -> query db (composeInner name1 name2))  
+compose name1 name2 = withDB $ (\db -> query db (composeInner name1 name2))
 
 composeInner name1 name2 = do
 	age1 <- getAgeInner name1

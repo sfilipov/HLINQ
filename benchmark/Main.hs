@@ -13,7 +13,7 @@ import qualified Query as HDB
 
 normalisedCompose fun = do
 	exp <- runQ $ (normalise $ unTypeQ [||$$composeT "Edna" "Drew"||])
-	fun exp 
+	fun exp
 normalisedDifferences fun = do
 	exp <- runQ $ (normalise $ unTypeQ [||$$differencesT||])
 	fun exp
@@ -53,9 +53,9 @@ main = defaultMain [
 
 	    bgroup "GetAge" [ bench "HLINQ Drew" $ whnfIO $ fromTest [||$$(getAgeT) "Drew"||],
 	    				  bench "HLINQ Drew to list" $ nfIO $ ((toList $ fromTest [||$$(getAgeT) "Drew"||]):: IO [(Int)]),
-	    				  bench "HLINQ unknown name " $ whnfIO $ fromTest [||$$(getAgeT) "Ethan"||], 
-	    				  bench "HLINQ unknown name " $ nfIO $ ((toList $ fromTest [||$$(getAgeT) "Ethan"||]):: IO [(Int)]), 
-	    				  bench "HaskellDB Drew" $ whnfIO $ (HDB.getAge "Drew"), 
+	    				  bench "HLINQ unknown name " $ whnfIO $ fromTest [||$$(getAgeT) "Ethan"||],
+	    				  bench "HLINQ unknown name " $ nfIO $ ((toList $ fromTest [||$$(getAgeT) "Ethan"||]):: IO [(Int)]),
+	    				  bench "HaskellDB Drew" $ whnfIO $ (HDB.getAge "Drew"),
 	    				  bench "HaskellDB unknown name " $ whnfIO $ (HDB.getAge "Ethan")
 	    				],
 

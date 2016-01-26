@@ -7,9 +7,9 @@ import Control.Monad
 
 
 fill = do
-	gen <- getStdGen 
+	gen <- getStdGen
 	males <- replicateM 50 $ mkPeople maleNames gen
-	females <- replicateM 50 $ mkPeople femaleNames gen 
+	females <- replicateM 50 $ mkPeople femaleNames gen
 	let couples = zipWith (\x y -> [x!!0, y!!0]) females males
 	--conn <- connectPostgreSQL []
 	conn <- connectSqlite3 "test.db"
@@ -22,7 +22,7 @@ fill = do
 	executeMany insPeople females
 	insCouples <- prepare conn "INSERT INTO couples VALUES ((?), (?))"
 	executeMany insCouples couples
-	-- newStdGen 
+	-- newStdGen
 	-- let male2 = mkPerson maleNames gen
 	commit conn
 	res <-	quickQuery' conn "SELECT * FROM people LIMIT 10" []
@@ -30,9 +30,9 @@ fill = do
 	return res
 
 fillN n = do
-	gen <- getStdGen 
+	gen <- getStdGen
 	males <- replicateM n $ mkPeople maleNames gen
-	females <- replicateM n $ mkPeople femaleNames gen 
+	females <- replicateM n $ mkPeople femaleNames gen
 	let couples = zipWith (\x y -> [x!!0, y!!0]) females males
 	--conn <- connectPostgreSQL []
 	conn <- connectSqlite3 "test.db"
@@ -45,13 +45,13 @@ fillN n = do
 	executeMany insPeople females
 	insCouples <- prepare conn "INSERT INTO couples VALUES ((?), (?))"
 	executeMany insCouples couples
-	-- newStdGen 
+	-- newStdGen
 	-- let male2 = mkPerson maleNames gen
 	commit conn
 	res <-	quickQuery' conn "SELECT * FROM people LIMIT 10" []
 	disconnect conn
 	return res
-	-- let males = take 50000 $ 
+	-- let males = take 50000 $
 
 addTestTable = do
 	conn <- connectSqlite3 "test.db"
@@ -87,6 +87,6 @@ femaleNames =["Laura", "Cindy", "Lisa", "Louis", "Jeniffer", "Catherine", "Kate"
 age gen = fst $ randomR (18,80) gen :: Int
 
 mkPerson names gen = [toSql (names !! ((fst (randomR (0, 11) gen))::Int)), toSql $ (age gen)]
-mkPeople names gen = do 
+mkPeople names gen = do
 	gen <- newStdGen
 	return $ mkPerson names gen

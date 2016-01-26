@@ -14,7 +14,7 @@ hsBinOp :: [Name]
 hsBinOp = ['(==), '(<), '(>), '(<=), '(>=), '(/=)]
 
 guardExp :: Exp -> ValueExpr
-guardExp (InfixE (Just exp1) (VarE fun) (Just exp2)) 
+guardExp (InfixE (Just exp1) (VarE fun) (Just exp2))
  | fun `elem` hsBinOp = BinOp (appExp exp1) (hsBinOpToSQL fun) (appExp exp2)
  | fun `elem` hsBoolOp = BinOp (guardExp exp1) (hsBoolOpToSQL fun) (guardExp exp2)
  | otherwise = error $ "Unsupported operator = " ++ (nameBase fun)
@@ -65,7 +65,7 @@ bindS' (VarP varName) (VarE table) = show $ TRAlias (TRSimple (nameBase table)) 
 data Subst = Subst {varExp :: Exp, valExp :: Exp} deriving (Eq, Show)
 
 normalise :: ExpQ -> ExpQ
-normalise exprQ = do 
+normalise exprQ = do
 	expr <- exprQ
 	let reduced = betaReduce expr
 	let reduced2 = reduce  reduced
@@ -79,7 +79,7 @@ reduce (VarE exp) = error $ "The queries must be spliced into the quotes, add '$
 reduce _ = error "Only do expression syntax is supported"
 
 symbolicReduceLoop :: [Stmt] -> [Stmt]
-symbolicReduceLoop stmts 
+symbolicReduceLoop stmts
   | stmts == symbolicReduceInnerLoop stmts = stmts
   | otherwise = symbolicReduceLoop $ symbolicReduceInnerLoop stmts
 
@@ -128,7 +128,7 @@ flatten ((NoBindS (DoE stmts)):xs) = stmts ++ flatten xs
 flatten (x:xs) = x : flatten xs
 
 adHocReduction :: [Stmt] -> [Stmt]
-adHocReduction stmts = afterReduction where 
+adHocReduction stmts = afterReduction where
 						guards = partition isGuard stmts
 						afterReduction = snd guards ++ (joinGuards $ fst guards)
 
@@ -154,7 +154,7 @@ extractFromGuard (NoBindS (AppE _ exp)) = exp
 
 -- Applies beta reduction to the expression, meant to resolve lambda functions inside the expression.
 betaReduce :: Exp -> Exp
-betaReduce expr = foldr (\y x -> substitute x y) simplified toSubst where 
+betaReduce expr = foldr (\y x -> substitute x y) simplified toSubst where
 	simplified = if (suitableForReduction expr) then simplify expr else expr
 	toSubst = extractPairs expr
 
@@ -182,13 +182,13 @@ simplify :: Exp -> Exp
 simplify (AppE expr1 expr2) = simplify expr1
 simplify (LamE _ expr) = simplify expr
 simplify expr@(DoE _) = expr
-simplify expr = expr 
+simplify expr = expr
 
 substitute :: Exp -> Subst -> Exp
 substitute (DoE exp) subst = DoE $ map (\x -> substituteStatements x subst) exp
-substitute expr@(AppE exp1 exp2) subst 
- | suitableForReduction expr = substitute (betaReduce expr) subst 
- | otherwise = AppE (substitute exp1 subst) (substitute exp2 subst) 
+substitute expr@(AppE exp1 exp2) subst
+ | suitableForReduction expr = substitute (betaReduce expr) subst
+ | otherwise = AppE (substitute exp1 subst) (substitute exp2 subst)
 substitute (LamE pat exp) subst = LamE pat (substitute exp subst)
 substitute (InfixE (Just exp1) midExp@(_) (Just exp2)) subst = InfixE (Just $ substitute exp1 subst) midExp (Just $ betaReduce $ substitute exp2 subst)
 substitute var@(VarE _) subst = substituteExp var subst
@@ -212,11 +212,11 @@ substituteStatements (BindS pat exp) subst = BindS pat $ substitute exp subst
 substituteStatements (LetS decs) subst = LetS $ map (\(ValD pat (NormalB exp) decls) -> (ValD pat (NormalB (substitute exp subst)) decls)) decs
 
 expQToSQL :: ExpQ -> QueryExpr
-expQToSQL exp = unsafePerformIO . runQ . fmap expToSQL $ normalised where 
+expQToSQL exp = unsafePerformIO . runQ . fmap expToSQL $ normalised where
 					normalised = normalise exp
 
 tExpQToSQL :: Q (TExp a) -> QueryExpr
-tExpQToSQL exp = unsafePerformIO . runQ . fmap expToSQL $ normalised where 
+tExpQToSQL exp = unsafePerformIO . runQ . fmap expToSQL $ normalised where
 					normalised = normalise $ unTypeQ exp
 
 expToSQL :: Exp -> QueryExpr
@@ -243,7 +243,7 @@ expToExpr (DoE stmt) = returnStatements stmt
 bindStatements :: [Stmt] -> [TableRef]
 bindStatements [(BindS pat exp)] = [(bindStatement pat exp)]
 bindStatements [x] = []
-bindStatements ((BindS pat exp): xs) = (bindStatement pat exp) : (bindStatements xs) 
+bindStatements ((BindS pat exp): xs) = (bindStatement pat exp) : (bindStatements xs)
 bindStatements (x : xs) = [] ++ (bindStatements xs)
 
 bindStatement :: Pat -> Exp -> TableRef
@@ -309,7 +309,7 @@ types tables infos= do
 
 
 matchTypes :: [String] -> [(String, String)] -> [String]
-matchTypes [] infos = [] 
+matchTypes [] infos = []
 matchTypes [x] infos = matchType x infos
 matchTypes (x:xs) infos = matchType x infos ++ (matchTypes xs infos)
 
@@ -326,10 +326,10 @@ getSelectTypes (iden@(DIden _ _), _) = iden
 getSelectTypes ((BinOp iden@(DIden _ _) _ _), _) = iden
 
 recordsToTables :: [ValueExpr] -> TableRef -> [String]
-recordsToTables [(((DIden field tableAlias)))] table@(TRAlias (TRSimple ref) s) 
-	| tableAlias == s = [field] 
+recordsToTables [(((DIden field tableAlias)))] table@(TRAlias (TRSimple ref) s)
+	| tableAlias == s = [field]
 	| otherwise = []
-recordsToTables (((DIden field tableAlias)): ys) table@(TRAlias (TRSimple ref) s) 
+recordsToTables (((DIden field tableAlias)): ys) table@(TRAlias (TRSimple ref) s)
 	| tableAlias == s = (field : (recordsToTables ys table))
 	| otherwise = recordsToTables ys table
 
@@ -339,5 +339,5 @@ fieldsToTables records tables = do
 									table@(TRAlias (TRSimple ref) s) <- tables
 									let fields = recordsToTables records table
 									guard $ not $ isEmpty fields
-									return (ref, fields) 
+									return (ref, fields)
 

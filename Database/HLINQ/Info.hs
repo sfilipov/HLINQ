@@ -10,7 +10,7 @@ import Database.HLINQ.Info.Internal
 import Database.HLINQ.Utilities
 
 
-{-#NOINLINE createDB #-} 
+{-#NOINLINE createDB #-}
 createDB :: String -> String -> Q [Dec]
 createDB dbPath dbName = do
 	--let info = unsafePerformIO $ getDBInfo dbPath
@@ -45,11 +45,11 @@ checkDbHash :: Integer -> String -> IO ()
 checkDbHash compileHash dbPath = do
 	info <- getDBInfo dbPath
 	let dbInfoHash = toInteger $ hash $ createTableInfos info
-	if dbInfoHash == compileHash then putStrLn "Database check passed" else fail "Database Structure has changed since last compilation, please recompile." 
+	if dbInfoHash == compileHash then putStrLn "Database check passed" else fail "Database Structure has changed since last compilation, please recompile."
 
 checkDbHash' :: Integer -> String -> IO (Either String String)
 checkDbHash' compileHash dbPath = do
 	info <- getDBInfo dbPath
 	let dbInfoHash = toInteger $ hash $ createTableInfos info
-	return $ if dbInfoHash == compileHash then Right "Database check passed" else Left "Database Structure has changed since last compilation, please recompile." 
+	return $ if dbInfoHash == compileHash then Right "Database check passed" else Left "Database Structure has changed since last compilation, please recompile."
 
