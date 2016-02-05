@@ -1,4 +1,4 @@
-{-# LANGUAGE TemplateHaskell#-}
+{-# LANGUAGE TemplateHaskell, FlexibleContexts #-}
 module Database.HLINQ.Utilities where
 import Language.Haskell.TH
 import Language.Haskell.TH.Syntax

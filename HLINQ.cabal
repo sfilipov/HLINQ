@@ -45,8 +45,6 @@ extra-source-files: examples/Examples.hs, examples/sql/1.sql, examples/sql/2.sql
 -- Constraint on the version of Cabal needed to build this package.
 cabal-version:       >=1.10
 
-tested-with:         GHC == 7.8.3
-
 source-repository head
   type: git
   location: git@github.com:juventietis/HLINQ.git
@@ -59,10 +57,15 @@ library
   other-modules:
 
   -- LANGUAGE extensions used by modules in this package.
-  other-extensions:    TemplateHaskell
+  other-extensions:    TemplateHaskell, FlexibleContexts
 
   -- Other library packages from which modules are imported.
-  build-depends:       base >=4.7 && <4.8, template-haskell >=2.9 && <2.10, HDBC-sqlite3 >=2.3 && <2.4, HDBC >=2.4 && <2.5,  convertible >= 1, hashable >= 1
+  build-depends:       base
+                     , template-haskell
+                     , HDBC-sqlite3
+                     , HDBC
+                     , convertible
+                     , hashable
 
   -- Directories containing source files.
   -- hs-source-dirs:
@@ -80,17 +83,28 @@ test-suite test
   other-modules: InfoTest, InfoInternalTest, DeconstructorTests, QueryTests, UtilitiesTests
   main-is:
     test.hs
-  build-depends:
-      base >= 4 && < 5, tasty >= 0.7, tasty-hunit >= 0.9, HDBC >= 2.4, HLINQ, random >= 1.1, HDBC-sqlite3 >= 2.3, template-haskell >=2.9 && <2.10
+  build-depends:      base
+                    , tasty
+                    , tasty-hunit
+                    , HDBC
+                    , HLINQ
+                    , random
+                    , HDBC-sqlite3
+                    , template-haskell
 
 benchmark criterion
-    build-depends:    base, HLINQ, criterion >= 1, template-haskell >=2.9 && <2.10, haskelldb >= 2.2, HDBC-sqlite3 >= 2.3, haskelldb-hdbc >= 2.2, haskelldb-hdbc-sqlite3 > 2.1, hashable >= 1
+    build-depends:    base
+                    , HLINQ
+                    , criterion
+                    , template-haskell
+                    , haskelldb
+                    , HDBC-sqlite3
+                    , haskelldb-hdbc
+                    , haskelldb-hdbc-sqlite3
+                    , hashable
     default-language: Haskell2010
     other-extensions:    TemplateHaskell
     other-modules: Query, Database.HaskellDB.TH, HDB.Tables, HDB.Fields, HDB.Connect, Examples
     hs-source-dirs:   benchmark, benchmark/HDB, benchmark/Database/HaskellDB, examples
     main-is:          Main.hs
     type:             exitcode-stdio-1.0
-
-
-
