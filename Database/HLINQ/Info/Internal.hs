@@ -63,7 +63,7 @@ createDBRecord dbName tableNames = return $ DataD context name vars cons derives
   name = mkName $ toTitleCase dbName
   vars = []
   cons = [RecC name fields]
-  fields = createFields tableNames mkDBField
+  fields = map mkDBField tableNames
   derives = [''Show]
 
 createDBInstance :: String -> [String] -> Q Dec
@@ -94,12 +94,8 @@ createTableRecord (tableName, columnTypes) = DataD context name vars cons derive
   name = mkName $ toTitleCase tableName
   vars = []
   cons = [RecC name fields]
-  fields = createFields columnTypes mkTableField
+  fields = map mkTableField columnTypes
   derives = [''Show]
-
-
-createFields :: [a] -> (a -> VarStrictType) -> [VarStrictType]
-createFields xs mkField = map mkField xs
 
 createDBInfoRecord :: Q Dec
 createDBInfoRecord = return $ DataD context name vars cons derives where
