@@ -2,37 +2,37 @@ module Database.HLINQ.Constructor where
 -- Add reference
 -- Change approach to the one using SQL parameters.
 data ValueExpr = StringLit String
-	| NumLit Integer
-	| BoolLit Bool
-	| Iden String
-	| DIden String String -- a.b
-	| Star
-	| DStar String -- t.*
-	| App String [ValueExpr]
-	| PrefOp String ValueExpr
-	| BinOp ValueExpr String ValueExpr
-	| Case (Maybe ValueExpr) -- test value
-		[(ValueExpr,ValueExpr)] -- when branches
-		(Maybe ValueExpr) -- else value
-	| Parens ValueExpr
-	| NotExists QueryExpr
-	| Union ValueExpr ValueExpr deriving(Eq)
+  | NumLit Integer
+  | BoolLit Bool
+  | Iden String
+  | DIden String String -- a.b
+  | Star
+  | DStar String -- t.*
+  | App String [ValueExpr]
+  | PrefOp String ValueExpr
+  | BinOp ValueExpr String ValueExpr
+  | Case (Maybe ValueExpr) -- test value
+    [(ValueExpr,ValueExpr)] -- when branches
+    (Maybe ValueExpr) -- else value
+  | Parens ValueExpr
+  | NotExists QueryExpr
+  | Union ValueExpr ValueExpr deriving(Eq)
 instance Show ValueExpr where
-	show (Iden s) = s
-	show (DIden s1 s2)  = s2 ++ "." ++ s1
-	show (Star) 	    =  "*"
-	show (DStar s) = s ++ ".*"
-	show (BinOp exp1 op exp2) = show exp1 ++ " " ++ op ++ " " ++ show exp2
-	show (Parens exp) = "(" ++ show exp ++ ")"
-	show (NumLit val) = show val
-	show (StringLit val) = val
-	show (NotExists q) = "NOT EXISTS (" ++ show q ++ ")"
+  show (Iden s) = s
+  show (DIden s1 s2)  = s2 ++ "." ++ s1
+  show (Star) 	    =  "*"
+  show (DStar s) = s ++ ".*"
+  show (BinOp exp1 op exp2) = show exp1 ++ " " ++ op ++ " " ++ show exp2
+  show (Parens exp) = "(" ++ show exp ++ ")"
+  show (NumLit val) = show val
+  show (StringLit val) = val
+  show (NotExists q) = "NOT EXISTS (" ++ show q ++ ")"
 
 
 getQueryParameters :: QueryExpr -> [ValueExpr]
 getQueryParameters queryExp = case (qeWhere queryExp) of
-									Just exp -> getValsWhere exp
-									Nothing -> []
+                  Just exp -> getValsWhere exp
+                  Nothing -> []
 
 getValsWhere :: ValueExpr -> [ValueExpr]
 getValsWhere (BinOp exp1 string exp2)
@@ -70,50 +70,50 @@ hsBinOpStr = ["=", "<", ">", "<=", ">=", "/="]
 
 data SqlQuery = UnionAll [QueryExpr] deriving (Eq)
 instance Show SqlQuery where
-	show (UnionAll a) = foldr (\x str -> str ++ " UNION ALL" ++ show x) "" a
+  show (UnionAll a) = foldr (\x str -> str ++ " UNION ALL" ++ show x) "" a
 
 data QueryExpr = Select
-	{qeSelectList :: [(ValueExpr,Maybe String)]
-	,qeFrom :: [TableRef]
-	,qeWhere :: Maybe ValueExpr
-	,qeGroupBy :: [ValueExpr]
-	,qeHaving :: Maybe ValueExpr
-	,qeOrderBy :: [ValueExpr]
-	} deriving (Eq)
+  {qeSelectList :: [(ValueExpr,Maybe String)]
+  ,qeFrom :: [TableRef]
+  ,qeWhere :: Maybe ValueExpr
+  ,qeGroupBy :: [ValueExpr]
+  ,qeHaving :: Maybe ValueExpr
+  ,qeOrderBy :: [ValueExpr]
+  } deriving (Eq)
 instance Show QueryExpr where
-	show (Select {qeSelectList=selectS, qeFrom=fromS, qeWhere=(Just whereS)}) = showSelect ++ showFrom ++ showWhere where
-		showSelect = "SELECT " ++ showAnyList (map (\(x, _) -> x) selectS)  ++ "\n"
-		showFrom = "FROM " ++ showAnyList fromS  ++ "\n"
-		showWhere = "WHERE " ++ (show $ knockOutValsWhere whereS)
-	show (Select {qeSelectList=selectS, qeFrom=fromS, qeWhere=(Nothing)}) = showSelect ++ showFrom where
-		showSelect = "SELECT " ++ showAnyList (map (\(x, _) -> x) selectS)  ++ "\n"
-		showFrom = "FROM " ++ showAnyList fromS  ++ "\n"
+  show (Select {qeSelectList=selectS, qeFrom=fromS, qeWhere=(Just whereS)}) = showSelect ++ showFrom ++ showWhere where
+    showSelect = "SELECT " ++ showAnyList (map (\(x, _) -> x) selectS)  ++ "\n"
+    showFrom = "FROM " ++ showAnyList fromS  ++ "\n"
+    showWhere = "WHERE " ++ (show $ knockOutValsWhere whereS)
+  show (Select {qeSelectList=selectS, qeFrom=fromS, qeWhere=(Nothing)}) = showSelect ++ showFrom where
+    showSelect = "SELECT " ++ showAnyList (map (\(x, _) -> x) selectS)  ++ "\n"
+    showFrom = "FROM " ++ showAnyList fromS  ++ "\n"
 
 makeSelect :: QueryExpr
 makeSelect = Select {qeSelectList = []
-			,qeFrom = []
-			,qeWhere = Nothing
-			,qeGroupBy = []
-			,qeHaving = Nothing
-			,qeOrderBy = []}
+      ,qeFrom = []
+      ,qeWhere = Nothing
+      ,qeGroupBy = []
+      ,qeHaving = Nothing
+      ,qeOrderBy = []}
 
 data TableRef = TRSimple String
-	| TRJoin TableRef JoinType TableRef (Maybe JoinCondition)
-	| TRParens TableRef
-	| TRAlias TableRef String
-	| TRQueryExpr QueryExpr
-	deriving (Eq)
+  | TRJoin TableRef JoinType TableRef (Maybe JoinCondition)
+  | TRParens TableRef
+  | TRAlias TableRef String
+  | TRQueryExpr QueryExpr
+  deriving (Eq)
 instance Show TableRef where
-	show (TRSimple s) = s
-	show (TRAlias ref s)  = show ref ++ " AS " ++ s
+  show (TRSimple s) = s
+  show (TRAlias ref s)  = show ref ++ " AS " ++ s
 
 data JoinType = JoinInner | JoinLeft | JoinRight | JoinFull | JoinCross
-	deriving (Eq,Show)
+  deriving (Eq,Show)
 
 data JoinCondition = JoinOn ValueExpr
-	| JoinUsing [String]
-	| JoinNatural
-	deriving (Eq,Show)
+  | JoinUsing [String]
+  | JoinNatural
+  deriving (Eq,Show)
 
 
 
@@ -121,4 +121,3 @@ showAnyList ::(Show a) => [a] -> String
 showAnyList [] = ""
 showAnyList [x] = show x
 showAnyList (x:xs) = show x ++ ", " ++ (showAnyList xs)
-

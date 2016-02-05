@@ -66,12 +66,12 @@ data Subst = Subst {varExp :: Exp, valExp :: Exp} deriving (Eq, Show)
 
 normalise :: ExpQ -> ExpQ
 normalise exprQ = do
-	expr <- exprQ
-	let reduced = betaReduce expr
-	let reduced2 = reduce  reduced
-	let reduced3 = DoE $ flatten $ (\(DoE stmts) -> stmts) reduced2
-	let reducedAdHoc = DoE $ adHocReduction $ (\(DoE stmts) -> stmts) reduced3
-	return reducedAdHoc
+  expr <- exprQ
+  let reduced = betaReduce expr
+  let reduced2 = reduce  reduced
+  let reduced3 = DoE $ flatten $ (\(DoE stmts) -> stmts) reduced2
+  let reducedAdHoc = DoE $ adHocReduction $ (\(DoE stmts) -> stmts) reduced3
+  return reducedAdHoc
 
 reduce :: Exp -> Exp
 reduce (DoE expr) = DoE $ symbolicReduceLoop expr
@@ -129,8 +129,8 @@ flatten (x:xs) = x : flatten xs
 
 adHocReduction :: [Stmt] -> [Stmt]
 adHocReduction stmts = afterReduction where
-						guards = partition isGuard stmts
-						afterReduction = snd guards ++ (joinGuards $ fst guards)
+            guards = partition isGuard stmts
+            afterReduction = snd guards ++ (joinGuards $ fst guards)
 
 isGuard :: Stmt -> Bool
 isGuard (NoBindS (InfixE (Just (VarE fun)) (|$|) (Just exp)))
@@ -155,8 +155,8 @@ extractFromGuard (NoBindS (AppE _ exp)) = exp
 -- Applies beta reduction to the expression, meant to resolve lambda functions inside the expression.
 betaReduce :: Exp -> Exp
 betaReduce expr = foldr (\y x -> substitute x y) simplified toSubst where
-	simplified = if (suitableForReduction expr) then simplify expr else expr
-	toSubst = extractPairs expr
+  simplified = if (suitableForReduction expr) then simplify expr else expr
+  toSubst = extractPairs expr
 
 
 -- Extracts name value pairs which will be substituted during beta reduction stage.
@@ -203,8 +203,8 @@ suitableForReduction _ = False
 
 substituteExp :: Exp -> Subst -> Exp
 substituteExp exp subst
-	| exp == (varExp subst) = if (suitableForReduction $ valExp subst) then betaReduce $ valExp subst else valExp subst
-	| otherwise = exp
+  | exp == (varExp subst) = if (suitableForReduction $ valExp subst) then betaReduce $ valExp subst else valExp subst
+  | otherwise = exp
 
 substituteStatements :: Stmt -> Subst -> Stmt
 substituteStatements (NoBindS exp) subst = NoBindS $ (substitute exp subst)
@@ -213,25 +213,25 @@ substituteStatements (LetS decs) subst = LetS $ map (\(ValD pat (NormalB exp) de
 
 expQToSQL :: ExpQ -> QueryExpr
 expQToSQL exp = unsafePerformIO . runQ . fmap expToSQL $ normalised where
-					normalised = normalise exp
+          normalised = normalise exp
 
 tExpQToSQL :: Q (TExp a) -> QueryExpr
 tExpQToSQL exp = unsafePerformIO . runQ . fmap expToSQL $ normalised where
-					normalised = normalise $ unTypeQ exp
+          normalised = normalise $ unTypeQ exp
 
 expToSQL :: Exp -> QueryExpr
 expToSQL (DoE stmt) = Select {
-	qeSelectList = map (\x -> (x, Nothing)) $ returnStatements stmt,
-	qeFrom = bindStatements stmt,
-	qeWhere = whereS,
-	qeGroupBy = [],
-	qeHaving = Nothing,
-	qeOrderBy = []
+  qeSelectList = map (\x -> (x, Nothing)) $ returnStatements stmt,
+  qeFrom = bindStatements stmt,
+  qeWhere = whereS,
+  qeGroupBy = [],
+  qeHaving = Nothing,
+  qeOrderBy = []
 } where
-	guardS = (guardStatements stmt)
-	whereS = case length guardS of
-				  0 -> Nothing
-				  otherwise -> Just $ head guardS
+  guardS = (guardStatements stmt)
+  whereS = case length guardS of
+          0 -> Nothing
+          otherwise -> Just $ head guardS
 expToSQL _ = error "Unimplemented syntax"
 
 expQToExpr :: ExpQ -> [ValueExpr]
@@ -301,11 +301,11 @@ isEmpty a = False
 
 types :: [(String,[String])] -> [(String, [(String, String)])] -> [String]
 types tables infos= do
-				(infoTable, infoFields) <- infos
-				(table, fields) <- tables
-				guard $ (table == infoTable)
-				let returnTypes = matchTypes fields infoFields
-				returnTypes
+        (infoTable, infoFields) <- infos
+        (table, fields) <- tables
+        guard $ (table == infoTable)
+        let returnTypes = matchTypes fields infoFields
+        returnTypes
 
 
 matchTypes :: [String] -> [(String, String)] -> [String]
@@ -315,11 +315,11 @@ matchTypes (x:xs) infos = matchType x infos ++ (matchTypes xs infos)
 
 matchType :: String -> [(String, String)] -> [String]
 matchType fieldName [(infoField, infoType)]
-	| fieldName == infoField = [infoType]
-	| otherwise = []
+  | fieldName == infoField = [infoType]
+  | otherwise = []
 matchType fieldName ((infoField, infoType) : xs)
-	| fieldName == infoField = [infoType]
-	| otherwise = matchType fieldName xs
+  | fieldName == infoField = [infoType]
+  | otherwise = matchType fieldName xs
 
 getSelectTypes :: (ValueExpr, Maybe String) -> ValueExpr
 getSelectTypes (iden@(DIden _ _), _) = iden
@@ -327,17 +327,16 @@ getSelectTypes ((BinOp iden@(DIden _ _) _ _), _) = iden
 
 recordsToTables :: [ValueExpr] -> TableRef -> [String]
 recordsToTables [(((DIden field tableAlias)))] table@(TRAlias (TRSimple ref) s)
-	| tableAlias == s = [field]
-	| otherwise = []
+  | tableAlias == s = [field]
+  | otherwise = []
 recordsToTables (((DIden field tableAlias)): ys) table@(TRAlias (TRSimple ref) s)
-	| tableAlias == s = (field : (recordsToTables ys table))
-	| otherwise = recordsToTables ys table
+  | tableAlias == s = (field : (recordsToTables ys table))
+  | otherwise = recordsToTables ys table
 
 
 fieldsToTables :: [ValueExpr] -> [TableRef] -> [(String, [String])]
 fieldsToTables records tables = do
-									table@(TRAlias (TRSimple ref) s) <- tables
-									let fields = recordsToTables records table
-									guard $ not $ isEmpty fields
-									return (ref, fields)
-
+                  table@(TRAlias (TRSimple ref) s) <- tables
+                  let fields = recordsToTables records table
+                  guard $ not $ isEmpty fields
+                  return (ref, fields)

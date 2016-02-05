@@ -16,9 +16,9 @@ toTitleCase [x] = [toUpper x]
 toTitleCase (x:xs) = toUpper x : xs
 
 toRecord toRec con valsIO  = do
-	vals <- valsIO
-	let conv = toRec con vals
-	return conv
+  vals <- valsIO
+  let conv = toRec con vals
+  return conv
 
 toRec con vals = map (\x -> con (fromSql $ x!!0)) vals
 toRec2 con vals = map (\x -> con (fromSql $ x!!0) (fromSql $ x!!1)) vals
@@ -32,9 +32,9 @@ toRec9 con vals = map (\x -> con (fromSql $ x!!0) (fromSql $ x!!1) (fromSql $ x!
 toRec10 con vals = map (\x -> con (fromSql $ x!!0) (fromSql $ x!!1) (fromSql $ x!!2) (fromSql $ x!!3) (fromSql $ x!!4) (fromSql $ x!!5) (fromSql $ x!!6) (fromSql $ x!!7) (fromSql $ x!!8) (fromSql $ x!!9)) vals
 
 toTuple toTup valsIO  = do
-	vals <- valsIO
-	let conv = toTup vals
-	return conv
+  vals <- valsIO
+  let conv = toTup vals
+  return conv
 
 toTup2 vals = map (\x -> (fromSql $ x!!0, fromSql $ x!!1)) vals
 toTup3 vals = map (\x -> (fromSql $ x!!0, fromSql $ x!!1, fromSql $ x!!2)) vals
@@ -47,9 +47,9 @@ toTup9 vals = map (\x -> (fromSql $ x!!0, fromSql $ x!!1, fromSql $ x!!2, fromSq
 toTup10 vals = map (\x -> (fromSql $ x!!0, fromSql $ x!!1, fromSql $ x!!2, fromSql $ x!!3, fromSql $ x!!4, fromSql $ x!!5, fromSql $ x!!6, fromSql $ x!!7, fromSql $ x!!8, fromSql $ x!!9)) vals
 
 toList valsIO = do
-	vals <- valsIO
-	let conv = map (\x -> fromSql $ x!! 0) vals
-	return conv
+  vals <- valsIO
+  let conv = map (\x -> fromSql $ x!! 0) vals
+  return conv
 
 toList' vals = fmap (map (\x -> fromSql $ x!! 0)) vals
 toList'' vals =  fmap (map (fromSql.head)) vals
