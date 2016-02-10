@@ -20,7 +20,7 @@ data ValueExpr = StringLit String
 instance Show ValueExpr where
   show (Iden s) = s
   show (DIden s1 s2)  = s2 ++ "." ++ s1
-  show (Star) 	    =  "*"
+  show (Star)       =  "*"
   show (DStar s) = s ++ ".*"
   show (BinOp exp1 op exp2) = show exp1 ++ " " ++ op ++ " " ++ show exp2
   show (Parens exp) = "(" ++ show exp ++ ")"
@@ -37,33 +37,33 @@ getQueryParameters queryExp = case (qeWhere queryExp) of
 getValsWhere :: ValueExpr -> [ValueExpr]
 getValsWhere (BinOp exp1 string exp2)
   | string `elem` hsBinOpStr = case exp2 of
-  									(NumLit val) -> (getValsWhere exp1) ++ [exp2]
-  									(StringLit val) -> (getValsWhere exp1) ++ [exp2]
-  									otherwise -> (getValsWhere exp1)
+                    (NumLit val) -> (getValsWhere exp1) ++ [exp2]
+                    (StringLit val) -> (getValsWhere exp1) ++ [exp2]
+                    otherwise -> (getValsWhere exp1)
   | otherwise = getValsWhere exp1 ++ getValsWhere exp2
 getValsWhere exp@(DIden _ _) = []
 getValsWhere exp@(NumLit val) = [exp]
 getValsWhere exp@(StringLit val) = [exp]
 getValsWhere (NotExists query) = q where
-  	q = case (qeWhere query) of
- 			   Just exp -> (getValsWhere exp)
- 			   otherwise -> []
+    q = case (qeWhere query) of
+          Just exp -> (getValsWhere exp)
+          otherwise -> []
 getValsWhere exp = error $ "getValsWhere: " ++ show exp
 
 knockOutValsWhere :: ValueExpr -> ValueExpr
 knockOutValsWhere (BinOp exp1 string exp2)
   | string `elem` hsBinOpStr = case exp2 of
-  									(NumLit val) -> (BinOp (knockOutValsWhere exp1) string (StringLit "(?)"))
-  									(StringLit val) -> (BinOp (knockOutValsWhere exp1) string (StringLit "(?)"))
-  									otherwise -> (BinOp (knockOutValsWhere exp1) string exp2)
+                    (NumLit val) -> (BinOp (knockOutValsWhere exp1) string (StringLit "(?)"))
+                    (StringLit val) -> (BinOp (knockOutValsWhere exp1) string (StringLit "(?)"))
+                    otherwise -> (BinOp (knockOutValsWhere exp1) string exp2)
   | otherwise = BinOp (knockOutValsWhere exp1) string (knockOutValsWhere exp2)
 knockOutValsWhere exp@(DIden _ _) = exp
 knockOutValsWhere exp@(NumLit val) = StringLit "(?)"
 knockOutValsWhere exp@(StringLit val) = StringLit "(?)"
 knockOutValsWhere (NotExists query) = NotExists q where
- 	q = case (qeWhere query) of
- 			   Just exp -> (query {qeWhere = Just (knockOutValsWhere exp)})
- 			   otherwise -> (query {qeWhere = Nothing})
+   q = case (qeWhere query) of
+          Just exp -> (query {qeWhere = Just (knockOutValsWhere exp)})
+          otherwise -> (query {qeWhere = Nothing})
 
 hsBinOpStr :: [String]
 hsBinOpStr = ["=", "<", ">", "<=", ">=", "/="]
